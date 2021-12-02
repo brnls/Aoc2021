@@ -18,15 +18,16 @@ namespace Aoc2021.Day1
             foreach (var input in Input)
             {
                 var data = input.Split(' ');
+                var val = int.Parse(data[1]);
                 if (data[0] == ("forward"))
-                    horizontalPos+= int.Parse(data[1]);
+                    horizontalPos+= val;
                 else if (data[0] == ("up"))
                 {
-                    verticalPos-= int.Parse(data[1]);
+                    verticalPos-= val;
                 }
                 else
                 {
-                    verticalPos+= int.Parse(data[1]);
+                    verticalPos+= val;
                 }
             }
 
