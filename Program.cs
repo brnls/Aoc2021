@@ -1,3 +1,3 @@
-﻿using Aoc2021.Day1;
+﻿using Aoc2021;
 
 Console.WriteLine(Day2.Part2());
