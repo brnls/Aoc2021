@@ -1,5 +1,5 @@
 ﻿
-namespace Aoc2021.Day5;
+namespace Aoc2021;
 
 class Day5
 {
