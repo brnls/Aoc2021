@@ -1,10 +1,11 @@
-﻿using System.Text;
-
-namespace Aoc2021;
+﻿
+namespace Aoc2021.Day5;
 
 class Day5
 {
     public static readonly List<string> Input = File.ReadAllLines("Day5/input").ToList();
+    public delegate int Del(int x, int y);
+    public delegate Coordinate CoordinateOp(Coordinate coordinate, bool add);
 
     public static long Part1()
     {
@@ -14,7 +15,7 @@ class Day5
 
     public static long Part2()
     {
-        var coordinates = ParseCoordinates().Where(c => c.IsVerticalLine() || c.IsHorizontalLine() || c.IsDiagonalLine()).ToList();
+        var coordinates = ParseCoordinates().Where(c => c.IsVerticalLine() || c.IsHorizontalLine() || c.IsDiagonalLineEqual() || c.IsDiagonalLineOpposite()).ToList();
         return FindOverlaps(coordinates);
     }
 
@@ -23,7 +24,7 @@ class Day5
         var positions = new Dictionary<Coordinate, int>();
         foreach (var coordinatePair in coordinates)
         {
-            var coordList = GenerateCoordinates(coordinatePair);
+            var coordList = GenerateCoordinatesLongWay(coordinatePair);
             foreach (var generatedCoordinate in coordList)
             {
                 if (positions.ContainsKey(generatedCoordinate))
@@ -32,7 +33,8 @@ class Day5
                     positions.Add(generatedCoordinate, 1);
             }
         }
-        return positions.Values.Count(x => x > 1);
+        var overlaps = positions.Where(x => x.Value > 1).ToList();
+        return overlaps.Count();
 
     }
 
@@ -53,7 +55,6 @@ class Day5
         return coordinates;
     }
 
-    public delegate int Del(int x, int y);
 
     public static List<Coordinate> GenerateCoordinates(Coordinates coordinates)
     {
@@ -78,71 +79,70 @@ class Day5
         return generatedCoords;
     }
 
+    public static List<Coordinate> GenerateCoordinatesLongWay(Coordinates coordinates)
+    {
+        var generatedCoords = new List<Coordinate>() { coordinates.Start };
+        var lineType = Coordinates.DetermineLineType(coordinates);
+
+        var startPosition = coordinates.Start;
+        var currentPosition = startPosition;
+        var endPosition = coordinates.End;
+        bool addX = NeedToAdd(startPosition.X, endPosition.X);
+        bool addY = NeedToAdd(startPosition.Y, endPosition.Y);
+
+        while (!currentPosition.Equals(endPosition))
+        {
+            if (lineType == Line.Horizontal)
+            {
+                if (addX)
+                    currentPosition = new Coordinate { X = currentPosition.X + 1, Y = currentPosition.Y };
+                else
+                    currentPosition = new Coordinate { X = currentPosition.X - 1, Y = currentPosition.Y };
+            }
+            else if (lineType == Line.Vertical)
+            {
+                if (addY)
+                    currentPosition = new Coordinate { X = currentPosition.X, Y = currentPosition.Y + 1 };
+                else
+                    currentPosition = new Coordinate { X = currentPosition.X, Y = currentPosition.Y - 1 };
+            }
+            else if (lineType == Line.Diagonal_Equal)
+            {
+                if (addX)
+                    currentPosition = new Coordinate { X = currentPosition.X + 1, Y = currentPosition.Y + 1 };
+                else
+                    currentPosition = new Coordinate { X = currentPosition.X - 1, Y = currentPosition.Y - 1 };
+            }
+            else 
+            {
+                if (addX)
+                    currentPosition = new Coordinate { X = currentPosition.X + 1, Y = currentPosition.Y - 1 };
+                else
+                    currentPosition = new Coordinate { X = currentPosition.X - 1, Y = currentPosition.Y + 1 };
+            }
+            generatedCoords.Add(currentPosition);
+        }
+        return generatedCoords;
+    }
+
+    public static bool NeedToAdd(int start, int end)
+    {
+        return start < end;
+    }
+
     public static int Add(int val1, int val2)
     {
         return val1 + val2;
     }
+
     public static int Minus(int val, int val2)
     {
         return val - val2;
     }
-        
 }
 
 
 
-public class Coordinates
-{
-    public Coordinate Start { get; set; }
-    public Coordinate End { get; set; }
 
 
-    public bool IsVerticalLine()
-    {
-        return Start.X == End.X && Start.Y != End.Y;
-    }
-
-    public bool IsHorizontalLine()
-    {
-        return Start.X != End.X && Start.Y == End.Y;
-    }
-    
-    public bool IsDiagonalLine()
-    {
-        return
-            (Start.X == Start.Y && End.X == End.Y) ||  //45diagonal
-            (Start.X == End.Y && Start.Y == End.X);    //45diagonal
-    }
-
-    public override bool Equals(object? obj)
-    {
-        return obj is Coordinates coordinates &&
-               EqualityComparer<Coordinate>.Default.Equals(Start, coordinates.Start) &&
-               EqualityComparer<Coordinate>.Default.Equals(End, coordinates.End);
-    }
-
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(Start, End);
-    }
-}
-
-public class Coordinate
-{
-    public int X { get; set; }
-    public int Y { get; set; }
-
-
-    public override bool Equals(object? obj)
-    {
-        return obj is Coordinate coordinate &&
-               X == coordinate.X &&
-               Y == coordinate.Y;
-    }
-
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(X, Y);
-    }
-}
 
