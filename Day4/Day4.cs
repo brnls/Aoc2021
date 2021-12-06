@@ -1,5 +1,4 @@
-﻿using System.Text;
-
+﻿
 namespace Aoc2021;
 
 class Day4
@@ -11,7 +10,7 @@ class Day4
         var bingoNums = Input.First().Split(',').Select(int.Parse).ToList();
         var boards = ParseBingoBoards();
 
-        List<List<Position>> winningBoard = null;
+        List<List<Position>>? winningBoard = null;
         int winningNumber = 0;
 
         foreach (var num in bingoNums)
@@ -30,7 +29,7 @@ class Day4
         if (winningBoard == null)
             throw new Exception("Did not find a winning board");
 
-        return CalculateScore(winningBoard, winningNumber);
+        return CalculateScore(winningBoard!, winningNumber);
     }
 
     public static long Part2()
@@ -38,7 +37,7 @@ class Day4
         var bingoNums = Input.First().Split(',').Select(int.Parse).ToList();
         var boards = ParseBingoBoards();
 
-        List<List<Position>> winningBoard = null;
+        List<List<Position>>? winningBoard = null;
         int winningNumber = 0;
         var completeBoards = new bool[boards.Count];
         foreach (var num in bingoNums)
@@ -54,7 +53,7 @@ class Day4
             }
         }
 
-        return CalculateScore(winningBoard, winningNumber);
+        return CalculateScore(winningBoard!, winningNumber);
     }
 
     public static List<List<List<Position>>> ParseBingoBoards()
