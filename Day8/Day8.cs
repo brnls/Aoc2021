@@ -13,11 +13,10 @@ class Day8
 
     public static long Part2()
     {
-        Dostuff(Input[0]);
-        return 0;
+        return Input.Select(x => ParseLine(x)).Sum();
     }
 
-    public static void DoStuff(string line)
+    public static int ParseLine(string line)
     {
         var legend = new char[7];
         var lineSplit = line.Split("|");
@@ -39,10 +38,43 @@ class Day8
         var nine = zeroOrNine.Single(x => x.Except(four.Concat(new char[] { legend[0] })).Count() == 1);
         var zero = zeroOrNine.Single(x => x != nine);
 
+        var twoOrThreeOrFive = legendNums.Where(x => x.Length == 5);
+        var three = twoOrThreeOrFive.Single(x => x.Intersect(one).Count() == 2);
+        var two = twoOrThreeOrFive.Where(x => x != three).Single(x => x.Contains(legend[1]));
+        var five = twoOrThreeOrFive.Single(x => x != three && x != two);
+
+
         legend[3] = nine.Except(four.Concat(new char[] { legend[0] })).SingleOrDefault();
         legend[4] = eight.Except(nine).Single();
         legend[6] = eight.Except(zero).Single();
         legend[5] = eight.Except(legend).Single();
-    }
 
+        var digitLookup = new[]
+        {
+            zero,
+            one,
+            two,
+            three,
+            four,
+            five,
+            six,
+            seven,
+            eight,
+            nine
+        }.Select(x => new HashSet<char>(x)).ToArray();
+
+        var numbers = lineSplit[1].Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(x =>
+        {
+            for (var i = 0; i < digitLookup.Length; i++)
+            {
+                if (new HashSet<char>(x).SetEquals(digitLookup[i]))
+                {
+                    return i.ToString();
+                }
+            }
+            throw new Exception("no match found");
+        });
+
+        return int.Parse(string.Join("", numbers));
+    }
 }
