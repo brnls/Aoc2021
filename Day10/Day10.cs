@@ -64,7 +64,79 @@ class Day10
 
     public static long Part2()
     {
-        throw new NotImplementedException();
+        var scores = Input.Where(x => FindCorruptedPosition(x) == null)
+            .Select(line => FindCompletionString(line))
+            .Select(str => CalculateScore(str))
+            .OrderBy(x => x)
+            .ToArray();
+        return scores[scores.Count() / 2];
+    }
+
+    public static long CalculateScore(string completionString)
+    {
+        long totalScore = 0L;
+        foreach (var c in completionString)
+        {
+            totalScore *= 5;
+            totalScore += GetCompletionScore(c);
+        }
+        return totalScore;
+    }
+
+    public static int GetCompletionScore(char c)
+    {
+        return c switch
+        {
+            ')' => 1,
+            ']' => 2,
+            '}' => 3,
+            '>' => 4,
+            _ => 0
+        };
+    }
+
+    public static string FindCompletionString(string input)
+    {
+        var completionString = "";
+        var stack = new Stack<char>();
+        foreach (var symbol in input)
+        {
+            if (OpeningSymbols.Contains(symbol))
+                stack.Push(symbol);
+            else
+            {
+                if (!stack.Any())
+                    throw new Exception("not sure yet...");
+                else
+                {
+                    if (!IsMatch(symbol, stack.Pop()))
+                        throw new Exception("Expecting valid input");
+
+                }
+            }
+        }
+
+        if (!stack.Any())
+            throw new Exception("not expecting empty stack");
+
+        while (stack.Any())
+        {
+            completionString += GetComplement(stack.Pop());
+        }
+
+        return completionString;
+    }
+
+    public static char GetComplement(char openingSymbol)
+    {
+        return openingSymbol switch
+        {
+            '(' => ')',
+            '[' => ']',
+            '{' => '}',
+            '<' => '>',
+            _ => throw new Exception("Unexpected symbol")
+        };
     }
 
 }
